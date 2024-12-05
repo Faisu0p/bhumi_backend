@@ -57,6 +57,37 @@ app.get('/api/properties', async (req, res) => {
 });
 
 
+//filter
+app.get('/api/properties', async (req, res) => {
+  let pool;
+  const searchQuery = req.query.q || ''; // Get the search query from the request
+
+  try {
+    pool = await mssql.connect(dbConfig);
+    const query = `
+      SELECT * FROM Properties
+      WHERE 
+        name LIKE @searchQuery OR
+        location LIKE @searchQuery
+    `;
+    const result = await pool
+      .request()
+      .input('searchQuery', mssql.VarChar, `%${searchQuery}%`)
+      .query(query);
+
+    res.status(200).json(result.recordset);
+  } catch (err) {
+    console.error('Error fetching properties:', err);
+    res.status(500).json({ message: 'Error fetching properties' });
+  } finally {
+    if (pool) {
+      pool.close();
+    }
+  }
+});
+
+
+
 
 
 // General error handler
