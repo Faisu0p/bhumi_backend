@@ -4,6 +4,7 @@ const cors = require('cors');
 const { connectDB } = require('./config/db');
 const propertyRoutes = require('./routes/propertyRoutes');
 const projectRoutes = require('./routes/projectRoutes');
+const builderRoutes = require('./routes/builderRoutes');
 
 dotenv.config();  // Load environment variables
 
@@ -31,6 +32,7 @@ app.get('/', (req, res) => {
 // Use routes
 app.use('/api/properties', propertyRoutes);
 app.use('/api/projects', projectRoutes);
+app.use('/api/builders', builderRoutes);
 
 // General error handler
 app.use((err, req, res, next) => {

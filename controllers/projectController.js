@@ -51,4 +51,26 @@ const getProjectById = async (req, res) => {
 
 
 
-module.exports = { getAllProjects, getProjectById };
+// Controller to add a new project
+const addProject = async (req, res) => {
+  const projectData = req.body; // Assuming the project data is sent in the request body
+
+  try {
+    if (!projectData) {
+      return res.status(400).json({ message: 'Project data is required' });
+    }
+
+    // Call the model's addProject function
+    const result = await projectModel.addProject(projectData);
+
+    // Respond with success message
+    return res.status(201).json({ message: 'Project added successfully', data: result });
+  } catch (err) {
+    console.error('Error inserting project:', err);
+    return res.status(500).json({ message: 'Error inserting project' });
+  }
+};
+
+
+
+module.exports = { getAllProjects, getProjectById, addProject };
