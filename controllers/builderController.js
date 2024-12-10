@@ -18,27 +18,27 @@ const addBuilder = async (req, res) => {
 };
 
 
-// Controller function to fetch builder names
-const getBuilderNames = async (req, res) => {
+// Controller function to fetch builder names and IDs
+const getBuilders = async (req, res) => {
   try {
-    // Fetch builder names from the Add_Builders table
-    const builderNames = await Builder.getBuilderNames();
+    // Fetch builders from the database
+    const builders = await Builder.getBuilders();
     
     // If no builders are found
-    if (!builderNames || builderNames.length === 0) {
+    if (!builders || builders.length === 0) {
       return res.status(404).json({
-        message: 'No builder names found'
+        message: 'No builders found'
       });
     }
 
-    // Send builder names as response
+    // Send builders as response
     res.status(200).json({
-      message: 'Builder names fetched successfully',
-      data: builderNames
+      message: 'Builders fetched successfully',
+      data: builders
     });
   } catch (err) {
     res.status(500).json({
-      message: 'Failed to fetch builder names',
+      message: 'Failed to fetch builders',
       error: err.message
     });
   }
@@ -79,4 +79,4 @@ const verifyBuilder = async (req, res) => {
 
 
 
-module.exports = { addBuilder, getBuilderNames, verifyBuilder};
+module.exports = { addBuilder, getBuilders, verifyBuilder};

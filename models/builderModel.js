@@ -24,22 +24,20 @@ const addBuilder = async (data) => {
 };
 
 
-// Define the function to fetch builder names
-const getBuilderNames = async () => {
+// Fetch builder names and IDs from Add_Builders table
+const getBuilders = async () => {
   try {
     const pool = await sql.connect(process.env.DB_CONNECTION_STRING);
     
     const result = await pool.request().query(`
-      SELECT fullName FROM Add_Builders;
+      SELECT builder_id, fullName FROM Add_Builders;
     `);
 
-    // Extracting builder names from the result set
-    const builderNames = result.recordset.map(builder => builder.fullName);
-    
-    return builderNames;
+    // Return the result as an array of objects
+    return result.recordset;
   } catch (err) {
-    console.error("Error fetching builder names:", err);
-    throw new Error('Error fetching builder names');
+    console.error("Error fetching builders:", err);
+    throw new Error('Error fetching builders');
   }
 };
 
@@ -67,4 +65,4 @@ const verifyBuilder = async (fullName) => {
 
 
 
-module.exports = { addBuilder,getBuilderNames, verifyBuilder };
+module.exports = { addBuilder, getBuilders, verifyBuilder };

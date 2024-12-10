@@ -16,53 +16,45 @@ const getAllProjects = async () => {
 
 
 
-// Function to add a new project
-const addProject = async (projectData) => {
-  let pool;
+// Model to add a project to the database
+const addPropertyProject = async (data) => {
   try {
-    pool = await mssql.connect(dbConfig);
-    
-    const { city, builder_id, project_name, company_under, launch_date, short_code, status, delivery_month_year, rera_no, total_towers, total_flats, sector_briefing, project_briefing, master_layout, category1, category2, amenities, phases } = projectData;
+    const pool = await mssql.connect(dbConfig); // Use mssql.connect() for consistency
+    const result = await pool.request()
+      .input('builder_id', mssql.Int, data.builder_id)
+      .input('city', mssql.VarChar, data.city)
+      .input('builder_name', mssql.VarChar, data.builder_name)
+      .input('project_name', mssql.VarChar, data.project_name)
+      .input('company_under_project_launched', mssql.VarChar, data.company_under_project_launched)
+      .input('project_launched_date', mssql.Date, data.project_launched_date)
+      .input('project_short_code', mssql.VarChar, data.project_short_code)
+      .input('completion_status', mssql.VarChar, data.completion_status)
+      .input('rera_number', mssql.VarChar, data.rera_number)
+      .input('total_towers', mssql.Int, data.total_towers)
+      .input('total_apartments', mssql.Int, data.total_apartments)
+      .input('sector_briefing', mssql.Text, data.sector_briefing)
+      .input('project_briefing', mssql.Text, data.project_briefing)
+      .input('master_layout', mssql.VarChar, data.master_layout)
+      .input('residential_units', mssql.NVarChar, JSON.stringify(data.residential_units))
+      .input('commercial_units', mssql.NVarChar, JSON.stringify(data.commercial_units))
+      .input('amenities', mssql.NVarChar, JSON.stringify(data.amenities))
+      .input('phases', mssql.NVarChar, JSON.stringify(data.phases))
+      .query(`
+        INSERT INTO PropertyProjects 
+        (builder_id, city, builder_name, project_name, company_under_project_launched, project_launched_date, 
+        project_short_code, completion_status, rera_number, total_towers, total_apartments, sector_briefing, 
+        project_briefing, master_layout, residential_units, commercial_units, amenities, phases, isVerified)
+        VALUES 
+        (@builder_id, @city, @builder_name, @project_name, @company_under_project_launched, @project_launched_date, 
+        @project_short_code, @completion_status, @rera_number, @total_towers, @total_apartments, @sector_briefing, 
+        @project_briefing, @master_layout, @residential_units, @commercial_units, @amenities, @phases, 0);
+      `);
 
-    const query = `
-      INSERT INTO Add_Projects (
-        city, builder_id, project_name, company_under, launch_date, short_code, status, 
-        delivery_month_year, rera_no, total_towers, total_flats, sector_briefing, 
-        project_briefing, master_layout, category1, category2, amenities, phases
-      )
-      VALUES (
-        @city, @builder_id, @project_name, @company_under, @launch_date, @short_code, @status, 
-        @delivery_month_year, @rera_no, @total_towers, @total_flats, @sector_briefing, 
-        @project_briefing, @master_layout, @category1, @category2, @amenities, @phases
-      );
-    `;
-
-    const request = pool.request();
-    request.input('city', mssql.VarChar, city);
-    request.input('builder_id', mssql.Int, builder_id);
-    request.input('project_name', mssql.VarChar, project_name);
-    request.input('company_under', mssql.VarChar, company_under);
-    request.input('launch_date', mssql.Date, launch_date);
-    request.input('short_code', mssql.VarChar, short_code);
-    request.input('status', mssql.VarChar, status);
-    request.input('delivery_month_year', mssql.VarChar, delivery_month_year);
-    request.input('rera_no', mssql.VarChar, rera_no);
-    request.input('total_towers', mssql.Int, total_towers);
-    request.input('total_flats', mssql.Int, total_flats);
-    request.input('sector_briefing', mssql.Text, sector_briefing);
-    request.input('project_briefing', mssql.Text, project_briefing);
-    request.input('master_layout', mssql.VarChar, master_layout);
-    request.input('category1', mssql.NVarChar, JSON.stringify(category1));  // Save JSON as string
-    request.input('category2', mssql.NVarChar, JSON.stringify(category2));  // Save JSON as string
-    request.input('amenities', mssql.NVarChar, JSON.stringify(amenities));  // Save JSON as string
-    request.input('phases', mssql.NVarChar, JSON.stringify(phases));  // Save JSON as string
-
-    await request.query(query);
-    return { message: 'Project added successfully' };
+    return result.rowsAffected[0] > 0; // Return true if the insert is successful
   } catch (err) {
-    console.error('Error inserting project:', err);
-    throw err;
+    console.error("Error adding property project:", err);
+    throw new Error('Error adding property project');
   }
 };
 
-module.exports = { getAllProjects, addProject };
+module.exports = { getAllProjects, addPropertyProject };
